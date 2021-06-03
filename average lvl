@@ -1,0 +1,126 @@
+#include <iostream>
+
+using namespace std;
+
+/*Вариант 10 - средний уровень
+Создать двунаправленный список из целых чисел. Удалить из списка элемент после каждого элемента, равного 4. Вставить число 0 перед каждым числом 1.*/
+
+ 
+struct node 
+{
+    node* prev;
+    node* next;
+    int   val;
+    node(int v):prev(NULL), next(NULL), val(v){}
+};
+ 
+typedef struct {
+    node* head, *tail;
+} list_t;
+ 
+void  list_init(list_t* lst){ lst->head = lst->tail = NULL; }
+void  list_copy(list_t* lst, const int* a, int n);
+node* list_erase(list_t* lst, node* pos);
+node* list_insert_before(list_t* lst, node* pos, int val);
+void  list_clear(list_t* lst);
+ 
+int main(void)
+{
+    list_t lst;
+    int a[] = { 4, -4, 1, 1, 1, 1, 4, 7, 4, 8, 4, 9, 1, 1, 4, -9 };
+    list_init(&lst);
+    list_copy(&lst, a, sizeof(a)/sizeof(a[0]));
+ 
+    
+    node* p = lst.head;
+    while(p != NULL){
+        if((p->val == 4) && (p->next != NULL))
+            p = list_erase(&lst, p->next);
+        else
+            p = p->next;
+    }
+ 
+    
+    for(p = lst.head; p != NULL; p = p->next){
+        if(p->val == 1)
+            p = list_insert_before(&lst, p, 0);
+    }
+ 
+    
+    for(const node* x = lst.head; x != NULL; x = x->next)
+        std::cout << x->val << ' ';
+    std::cout << std::endl;
+ 
+    for(const node* y = lst.tail; y != NULL; y = y->prev)
+        std::cout << y->val << ' ';
+    std::cout << std::endl;
+ 
+    list_clear(&lst);
+    std::cin.get();
+    return 0;
+}
+ 
+
+void list_copy(list_t* lst, const int* a, int n){
+    node* p;
+    list_init(lst);
+    for(int i = 0; i < n; ++i){
+        p = new node(a[i]);
+ 
+        if(lst->head == NULL)
+            lst->head = lst->tail = p;
+        else {
+            p->prev = lst->tail;
+            lst->tail->next = p;
+            lst->tail = p;
+        }
+    }
+}
+ 
+
+node* list_erase(list_t* lst, node* pos){
+    node* p = pos->next;
+    if(pos == lst->head){
+        lst->head = lst->head->next;
+        if(lst->head == NULL)
+            lst->tail = NULL;
+        else
+            lst->head->prev = NULL;
+    } else if(pos == lst->tail){
+        lst->tail = lst->tail->prev;
+        lst->tail->next = NULL;
+    } else {
+        pos->prev->next = pos->next;
+        pos->next->prev = pos->prev;
+    }
+    delete pos;
+    return p;
+}
+ 
+
+node* list_insert_before(list_t* lst, node* pos, int val){
+    node* p = new node(val);
+    if(pos == lst->head){
+        lst->head->prev = p;
+        p->next   = lst->head;
+        lst->head = p;
+    } else {
+        p->next = pos;
+        p->prev = pos->prev;
+ 
+        pos->prev->next = p;
+        pos->prev = p;
+    }
+    return pos;
+}
+ 
+
+void list_clear(list_t* lst){
+    node* t;
+    while(lst->head != NULL){
+        t = lst->head;
+        lst->head = lst->head->next;
+        delete t;
+    }
+    lst->tail = NULL;
+}
