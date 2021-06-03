@@ -1,0 +1,33 @@
+#include <iostream>
+
+using namespace std;
+
+/*Вариант 10 - высокий уровень
+Дано число K (K > 0) и указатель P0 на один из элементов непустого двусвязного списка. Переместить в списке данный элемент на K позиций вперед (если после данного элемента находится менее K элементов, то переместить его в конец списка). Вывести указатели на первый и последний элементы преобразованного списка. Помогите пожалуйста реализовать функцию сдвига элементов.*/
+
+int p;
+
+
+Pointer advance(Pointer p, size_t off)
+{
+    while (off-- && p->next) p = p->next;
+    return p;
+}
+
+void task_10(Pointer p, size_t k)
+{
+    if (!p || !k || !p->next) return;
+    Pointer ins = advance(p, k);
+
+    if (p->prev) p->prev->next = p->next;
+    if (p->next) p->next->prev = p->prev;
+
+    p->next = ins->next;
+    p->prev = ins;
+    ins->next = p;
+    if (p->next) p->next->prev = p;
+}
+int main()
+{
+    void task_10();
+}
